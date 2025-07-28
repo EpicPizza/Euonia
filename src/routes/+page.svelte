@@ -57,10 +57,45 @@
 		onSnapshot(sessionRef, (doc) => {
 			if (doc.exists()) {
 				const sessionData = doc.data();
-				messages = sessionData.interactions.map((interaction: OpenAI.Chat.Completions.ChatCompletionMessageParam) => ({
-					role: interaction.role,
-					text: typeof interaction.content == 'string' ? interaction.content : interaction.content?.map(part => part.type == 'text' ? part.text : "").join(" ") ?? "",
-				})).filter((interaction: { text: string }) => interaction.text.trim() !== '');
+				messages = sessionData.interactions.flatMap((interaction: OpenAI.Chat.Completions.ChatCompletionMessage) => {
+					const newMessages = [];
+
+                    //@ts-expect-error
+					if (interaction.role === 'tool') {
+						const toolContent = typeof interaction.content === 'string' ? interaction.content.trim() : '';
+						if (toolContent) {
+							newMessages.push({
+								role: 'tool',
+								text: `Tool Output: ${toolContent}`
+							});
+						}
+					} else if (interaction.tool_calls && interaction.tool_calls.length > 0) {
+						// This is an assistant message that calls a tool
+						interaction.tool_calls.forEach(toolCall => {
+							newMessages.push({
+								role: 'assistant', // Display as assistant message, but indicate tool call
+								text: `Calling ${toolCall.function.name.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase())}`
+							});
+						});
+						const assistantContent = typeof interaction.content === 'string' ? interaction.content.trim() : '';
+						if (assistantContent) { // Also include any content from the assistant message
+							newMessages.push({
+								role: interaction.role,
+								text: assistantContent
+							});
+						}
+					} else {
+						// Regular user or assistant message with content
+						const messageContent = typeof interaction.content === 'string' ? interaction.content.trim() : '';
+						if (messageContent) {
+							newMessages.push({
+								role: interaction.role,
+								text: messageContent
+							});
+						}
+					}
+					return newMessages;
+				}).filter((i: undefined) => i != undefined).filter((interaction: { text: string }) => interaction.text.trim() !== '');
 			}
 		});
 	}
@@ -88,18 +123,28 @@
 			<div bind:this={chatContainer} class="border-none rounded-2xl flex-grow flex flex-col p-6 bg-white shadow-md overflow-y-auto">
 				{#if messages.length > 0}
 				<div class="flex-grow space-y-4">
-					{#each messages as message}
-						<div class="flex" class:justify-end={message.role === 'user'}>
-							<div
-								class="rounded-lg px-6 py-3 max-w-xs lg:max-w-md"
-								class:bg-[#2C3E2F]={message.role === 'user'}
-								class:text-white={message.role === 'user'}
-								class:bg-[#F9F7F2]={message.role === 'assistant'}
-								class:text-[#2C3E2F]={message.role === 'assistant'}
-							>
-								{message.text}
-							</div>
-						</div>
+										{#each messages as message}
+						{#if message.text.trim() !== ''}
+							{#if message.role === 'tool'}
+								<div class="flex justify-center">
+									<div class="rounded-lg px-6 py-3 max-w-xs lg:max-w-md bg-gray-100 text-gray-600 italic text-sm text-center">
+										{message.text}
+									</div>
+								</div>
+							{:else}
+								<div class="flex" class:justify-end={message.role === 'user'}>
+									<div
+										class="rounded-lg px-6 py-3 max-w-xs lg:max-w-md"
+										class:bg-[#2C3E2F]={message.role === 'user'}
+										class:text-white={message.role === 'user'}
+										class:bg-[#F9F7F2]={message.role === 'assistant'}
+										class:text-[#2C3E2F]={message.role === 'assistant'}
+									>
+										{message.text}
+									</div>
+								</div>
+							{/if}
+						{/if}
 					{/each}
 					{#if loading}
 						<div class="flex justify-start">
