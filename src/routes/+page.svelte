@@ -140,7 +140,7 @@
 												<p>No goals found for the specified period.</p>
 											{/if}
 										{:else}
-											{message.text}
+                                            {@html message.text.replaceAll('\n', '<br>').replaceAll('*', '')}
 										{/if}
 									</div>
 								</div>
@@ -153,7 +153,7 @@
 										class:bg-[#F9F7F2]={message.role === 'assistant'}
 										class:text-[#2C3E2F]={message.role === 'assistant'}
 									>
-										{message.text}
+										{@html message.text.replaceAll('\n', '<br>').replaceAll('*', '')}
 									</div>
 								</div>
 							{/if}

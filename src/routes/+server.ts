@@ -62,6 +62,8 @@ When a goal opportunity is identified, define it using SMART principles: it must
  **resolve_goal**: when a user has successfully accomplished their SMART goal, you should call this function to resolve it and remove it from active goals. 
 
 END OF PROMPT  
+
+YOUR RESPONSES SHOULD NOT BE MORE THAN A HUNDRED WORDS.
 `
   } satisfies OpenAI.Chat.Completions.ChatCompletionMessageParam;
 
