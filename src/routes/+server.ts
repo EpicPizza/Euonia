@@ -124,7 +124,7 @@ import type { MessageBatch, MessageCreateParamsBase } from '@anthropic-ai/sdk/re
   let text = "";
   let message = completion.choices[0].message;
 
-  while (message?.tool_calls) {
+  while (message?.tool_calls && message.tool_calls.length > 0) {
     messages.push(message); // Add the assistant's tool call message to interactions
     await ref.set({
       interactions: messages,
@@ -136,9 +136,9 @@ import type { MessageBatch, MessageCreateParamsBase } from '@anthropic-ai/sdk/re
       let result;
 
       if (functionName === "get_goals") {
-        result = await getGoals(functionArgs);
+        result = await getGoals({ ...functionArgs, uid });
       } else if (functionName === "set_goal") {
-        result = await setGoal(functionArgs);
+        result = await setGoal({ ...functionArgs, uid });
       }
       // Add more tool calls here if needed
 
@@ -174,7 +174,7 @@ import type { MessageBatch, MessageCreateParamsBase } from '@anthropic-ai/sdk/re
   }, { merge: true });
     
  
-  const allGoals = await getAllGoals();
+  const allGoals = await getAllGoals(uid);
 
   return {
     responseText: text,
@@ -182,7 +182,7 @@ import type { MessageBatch, MessageCreateParamsBase } from '@anthropic-ai/sdk/re
   };
  }
 
-async function setGoal({ name, priority, description, deadline }: { name: string, priority: number, description: string, deadline: string }) {
+async function setGoal({ name, priority, description, deadline, uid }: { name: string, priority: number, description: string, deadline: string, uid: string }) {
     const db = firebaseAdmin.getFirestore();
 
     const docRef = db.collection("goals").doc();
@@ -195,6 +195,7 @@ async function setGoal({ name, priority, description, deadline }: { name: string
       id: docRef.id,
       day: Math.floor((new Date().getTime() - new Date(2023, 5, 24).getTime()) / (1000 * 60 * 60 * 24)),
       deadline,
+      uid,
     }
 
     
@@ -203,20 +204,20 @@ async function setGoal({ name, priority, description, deadline }: { name: string
     return goal;
 }
 
-async function getGoals({ days }: { days: number }): Promise<{ name: string, priority: number, description: string, id: string }[]> {
+async function getGoals({ days, uid }: { days: number, uid: string }): Promise<{ name: string, priority: number, description: string, id: string }[]> {
     const db = firebaseAdmin.getFirestore();
 
     if(isNaN(days)) {
         days = 7;
     }
 
-    const goals = await db.collection("goals").where("day", ">=", Math.floor((new Date().getTime() - new Date(2023, 5, 24).getTime()) / (1000 * 60 * 60 * 24)) - days).where("day", "<", Math.floor((new Date().getTime() - new Date(2023, 5, 24).getTime()) / (1000 * 60 * 60 * 24)) + days).get();
+    const goals = await db.collection("goals").where("uid", "==", uid).where("day", ">=", Math.floor((new Date().getTime() - new Date(2023, 5, 24).getTime()) / (1000 * 60 * 60 * 24)) - days).where("day", "<", Math.floor((new Date().getTime() - new Date(2023, 5, 24).getTime()) / (1000 * 60 * 60 * 24)) + days).get();
     return goals.docs.map(doc => doc.data() as any);
 } 
 
-async function getAllGoals(): Promise<{ name: string, priority: string, description: string, id: string, deadline: string }[]> {
+async function getAllGoals(uid: string): Promise<{ name: string, priority: string, description: string, id: string, deadline: string }[]> {
     const db = firebaseAdmin.getFirestore();
-    const goalsSnapshot = await db.collection("goals").orderBy("createdAt", "desc").get();
+    const goalsSnapshot = await db.collection("goals").where("uid", "==", uid).orderBy("createdAt", "desc").get();
     return goalsSnapshot.docs.map(doc => doc.data() as any);
 } 
 
