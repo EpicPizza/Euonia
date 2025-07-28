@@ -94,8 +94,6 @@ Follow these instructions to set up and run Eunoia locally on your machine.
     Create a `.env` file in the root of your project and add the following:
 
     ```
-    ANTHROPIC_API_KEY="YOUR_ANTHROPIC_API_KEY" # If using Anthropic models
-    GEMINI_API_KEY="YOUR_GEMINI_API_KEY" # If using Google Gemini models
     NVIDIA_API_KEY="YOUR_NVIDIA_API_KEY" # Required for Moonshot AI model
     ```
     Replace `"YOUR_..."` with your actual API keys.
