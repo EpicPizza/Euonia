@@ -67,14 +67,14 @@
 </script>
 
 {#if $user}
-<div class="bg-[#FEF6EB] text-[#2C3E2F] h-screen p-10 font-poppins">
+<div class="bg-[#FEF6EB] text-[#2C3E2F] h-screen p-6 font-poppins">
 	<div class="max-w-7xl mx-auto h-full flex gap-8"> 
 		<div class="w-2/3 h-full flex flex-col">
 		<!-- Top Bar -->
-		<header class="mb-4">
-			<div class="relative border-none rounded-2xl p-3 text-center bg-white shadow-md">
-				<h1 class="text-md sm:text-lg font-semibold text-[#2C3E2F]">
-					AI Chat with Gemini
+		<header class="mb-6">
+			<div class="relative border-none rounded-2xl p-4 text-left bg-white shadow-md">
+				<h1 class="text-md sm:text-2xl font-semibold text-[#2C3E2F] font-eb-garamond">
+					Eunoia
 				</h1>
 				<button on:click={handleRefresh} class="absolute top-1/2 right-3 -translate-y-1/2 text-[#2C3E2F] hover:text-gray-700 transition-colors" aria-label="Refresh chat">
 					Refresh
@@ -83,15 +83,15 @@
 		</header>
 
 		<!-- Main Content -->
-		<main class="flex-grow flex flex-col gap-4 min-h-0">
+		<main class="flex-grow flex flex-col gap-6 min-h-0">
 			<!-- Chat Display -->
-			<div bind:this={chatContainer} class="border-none rounded-2xl flex-grow flex flex-col p-4 bg-white shadow-md overflow-y-auto">
+			<div bind:this={chatContainer} class="border-none rounded-2xl flex-grow flex flex-col p-6 bg-white shadow-md overflow-y-auto">
 				{#if messages.length > 0}
 				<div class="flex-grow space-y-4">
-					{#each messages.slice(1) as message}
+					{#each messages as message}
 						<div class="flex" class:justify-end={message.role === 'user'}>
 							<div
-								class="rounded-lg px-4 py-2 max-w-xs lg:max-w-md"
+								class="rounded-lg px-6 py-3 max-w-xs lg:max-w-md"
 								class:bg-[#2C3E2F]={message.role === 'user'}
 								class:text-white={message.role === 'user'}
 								class:bg-[#F9F7F2]={message.role === 'assistant'}
@@ -103,7 +103,7 @@
 					{/each}
 					{#if loading}
 						<div class="flex justify-start">
-							<div class="rounded-lg px-4 py-2 bg-gray-200 dark:bg-gray-700">
+							<div class="rounded-lg px-4 py-2 bg-[#F9F7F2] text-[#2C3E2F] font-eb-garamond">
 								Thinking...
 							</div>
 						</div>
@@ -111,7 +111,7 @@
 				</div>
 				{:else}
 				<div class="flex-grow flex items-center justify-center">
-					<p class="text-gray-500 dark:text-gray-400">Start the conversation by sending a message.</p>
+					<p class="text-[#2C3E2F] opacity-70 font-eb-garamond">Start the conversation by sending a message.</p>
 				</div>
 				{/if}
 			</div>
@@ -126,8 +126,8 @@
 					disabled={!$user}
 				/>
 				<button
-					on:click={handleSend}
-					class="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-lg transition-colors shadow-sm disabled:bg-gray-400 disabled:cursor-not-allowed"
+				on:click={handleSend}
+					class="bg-[#2C3E2F] hover:bg-[#1a2a1c] text-white p-3 rounded-full transition-colors shadow-sm disabled:bg-gray-400 disabled:cursor-not-allowed"
 					disabled={!userInput.trim() || loading || !$user}
 					aria-label="Send message"
 				>
@@ -140,23 +140,23 @@
 		</div>
 
 		<!-- Goals Sidebar -->
-		<aside class="w-1/3 h-full flex flex-col bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-300 dark:border-gray-700">
-			<header class="p-4 border-b border-gray-300 dark:border-gray-700">
-				<h2 class="text-lg font-semibold text-gray-600 dark:text-gray-300">My Goals</h2>
+		<aside class="w-1/3 h-full flex flex-col bg-white rounded-2xl shadow-md border-none">
+			<header class="p-6 border-b border-gray-200">
+				<h2 class="text-lg font-semibold text-[#2C3E2F] font-eb-garamond">My Goals</h2>
 			</header>
-			<div class="flex-grow p-4 overflow-y-auto">
-				<div class="space-y-4">
+			<div class="flex-grow p-6 overflow-y-auto">
+				<div class="space-y-6">
 					{#each goals as goal}
-						<div class="p-4 rounded-lg bg-gray-100 dark:bg-gray-700">
-							<h3 class="font-bold text-md text-gray-800 dark:text-gray-200">{goal.name}</h3>
-							<p class="text-sm text-gray-600 dark:text-gray-400 mt-1">{goal.description}</p>
+						<div class="p-6 rounded-lg bg-[#F9F7F2]">
+							<h3 class="font-bold text-md text-[#2C3E2F]">{goal.name}</h3>
+							<p class="text-sm text-[#2C3E2F] mt-1">{goal.description}</p>
 							<div class="mt-2 text-xs flex justify-between">
-								<span class="font-semibold text-gray-700 dark:text-gray-300">Priority: {goal.priority}</span>
-								<span class="text-gray-500 dark:text-gray-400">Deadline: {goal.deadline}</span>
+								<span class="font-semibold text-[#2C3E2F]">Priority: {goal.priority}</span>
+								<span class="text-gray-500">Deadline: {goal.deadline}</span>
 							</div>
 						</div>
 					{:else}
-						<p class="text-gray-500 dark:text-gray-400">You have no goals set. Let's create some!</p>
+						<p class="text-[#2C3E2F] opacity-70">You have no goals set. Let's create some!</p>
 					{/each}
 				</div>
 			</div>
@@ -251,24 +251,9 @@
 		scrollbar-color: #888 #f1f1f1;
 	}
 
-	* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: 'Poppins', sans-serif;
-    background-color: #FEF6EB; /* Updated to match the requested color */
-    color: #2C3E2F;
-    min-height: 100vh;
-    padding: 40px;
-    overflow: hidden;
-    position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
+	.font-eb-garamond {
+		font-family: 'EB Garamond', serif;
+	}
 
 /* Card Styles */
 .card {
@@ -423,7 +408,6 @@ body {
 
 .name-input input {
     width: 220px;
-    padding: 12px 20px;
     font-size: 16px;
     border-radius: 100px;
     border: 2px solid #2C3E2F;
