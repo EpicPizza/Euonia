@@ -43,10 +43,12 @@
 
 		console.log(currentMessage);
 
-		await fetch('/', {
+		const result = await fetch('/', {
 			method: 'POST',
 			body: JSON.stringify({ message: currentMessage}),
 		});
+
+        goals = (await result.json()).goals;
 
 		loading = false;
 	}
@@ -111,9 +113,6 @@
 				<h1 class="text-md sm:text-2xl font-semibold text-[#2C3E2F] font-eb-garamond">
 					Eunoia
 				</h1>
-				<button on:click={handleRefresh} class="absolute top-1/2 right-3 -translate-y-1/2 text-[#2C3E2F] hover:text-gray-700 transition-colors" aria-label="Refresh chat">
-					Refresh
-				</button>
 			</div>
 		</header>
 
