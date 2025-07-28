@@ -94,6 +94,7 @@ Follow these instructions to set up and run Euonia locally on your machine.
     Create a `.env` file in the root of your project and add the following:
 
     ```
+    FIREBASE_ADMIN_SDK_PATH="./serviceAccountKey.json" # Path to your Firebase Admin SDK service account key JSON file
     NVIDIA_API_KEY="YOUR_NVIDIA_API_KEY" # Required for Moonshot AI model
     ```
     Replace `"YOUR_..."` with your actual API keys.
