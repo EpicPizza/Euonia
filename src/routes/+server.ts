@@ -145,7 +145,11 @@ import type { MessageBatch, MessageCreateParamsBase } from '@anthropic-ai/sdk/re
       messages.push({
         tool_call_id: toolCall.id,
         role: "tool",
-        content: JSON.stringify(result),
+        content: (functionName === "get_goals" && Array.isArray(result) && result.length === 0)
+          ? "No goals found for the specified period."
+          : (functionName === "set_goal" && result && typeof result === 'object' && 'name' in result)
+          ? `Goal '${result.name}' has been successfully set.`
+          : JSON.stringify(result),
       });
       await ref.set({
         interactions: messages,

@@ -128,7 +128,21 @@
 							{#if message.role === 'tool'}
 								<div class="flex justify-center">
 									<div class="rounded-lg px-6 py-3 max-w-xs lg:max-w-md bg-gray-100 text-gray-600 italic text-sm text-center">
-										{message.text}
+										{#if message.text.startsWith("Tool Output: [")}
+											{@const goals = JSON.parse(message.text.replace("Tool Output: ", ""))}
+											{#if goals.length > 0}
+												<p>Your goals:</p>
+												<ul>
+													{#each goals as goal}
+														<li>- {goal.name}</li>
+													{/each}
+												</ul>
+											{:else}
+												<p>No goals found for the specified period.</p>
+											{/if}
+										{:else}
+											{message.text}
+										{/if}
 									</div>
 								</div>
 							{:else}

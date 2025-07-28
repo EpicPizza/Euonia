@@ -4,9 +4,12 @@ import { redirect } from "@sveltejs/kit";
 import { randomUUID } from "crypto";
 import type OpenAI from "openai";
 
-async function getAllGoals(): Promise<{ name: string, priority: string, description: string, id: string, deadline: string }[]> {
+async function getAllGoals(uid: string | undefined): Promise<{ name: string, priority: string, description: string, id: string, deadline: string }[]> {
     const db = firebaseAdmin.getFirestore();
-    const goalsSnapshot = await db.collection("goals").orderBy("createdAt", "desc").get();
+    if (!uid) {
+        return [];
+    }
+    const goalsSnapshot = await db.collection("goals").where("uid", "==", uid).orderBy("createdAt", "desc").get();
     return goalsSnapshot.docs.map(doc => doc.data() as any);
 } ;
 
@@ -17,7 +20,7 @@ export async function load({ url, cookies }) {
 
     const uid = user?.uid;
 
-    const goals = await getAllGoals();
+    const goals = await getAllGoals(uid);
 
     return {
         sessionId: uid,
