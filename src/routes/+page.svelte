@@ -111,7 +111,7 @@
 		<header class="mb-6">
 			<div class="relative border-none rounded-2xl p-4 text-left bg-white shadow-md">
 				<h1 class="text-md sm:text-2xl font-semibold text-[#2C3E2F] font-eb-garamond">
-					Eunoia
+					Euonia
 				</h1>
 			</div>
 		</header>
@@ -253,7 +253,7 @@
 
     <div class="main-title">
         <h1>Grow</h1>
-        <h2>with Eunoia</h2>
+        <h2>with Euonia</h2>
     </div>
     
     <div class="absolute bottom-20 left-1/2 -translate-x-1/2 z-10">

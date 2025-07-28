@@ -1,6 +1,6 @@
-# Eunoia
+# Euonia
 
-Eunoia is an AI-powered conversational therapy application designed to provide empathetic and evidence-based support. It leverages advanced AI models and integrates with goal management functionalities to help users track and achieve their personal objectives.
+Euonia is an AI-powered conversational therapy application designed to provide empathetic and evidence-based support. It leverages advanced AI models and integrates with goal management functionalities to help users track and achieve their personal objectives.
 
 ## Features
 
@@ -22,7 +22,7 @@ Eunoia is an AI-powered conversational therapy application designed to provide e
 
 ## Getting Started
 
-Follow these instructions to set up and run Eunoia locally on your machine.
+Follow these instructions to set up and run Euonia locally on your machine.
 
 ### Prerequisites
 
@@ -35,8 +35,8 @@ Follow these instructions to set up and run Eunoia locally on your machine.
 
 1.  **Clone the repository:**
     ```bash
-    git clone https://github.com/your-username/eunoia.git
-    cd eunoia
+    git clone https://github.com/your-username/euonia.git
+    cd euonia
     ```
 
 2.  **Install dependencies:**
@@ -114,9 +114,9 @@ Open your browser and navigate to `http://localhost:5173` (or the port indicated
 
 1.  **Sign In:** Upon opening the application, you'll be prompted to sign in (anonymous sign-in is supported).
 2.  **Chat:** Type your messages in the input field and press Enter or click the send button.
-3.  **Set Goals:** You can ask Eunoia to set goals for you, e.g., "Set a goal to exercise for 30 minutes daily, due by next Friday, with high priority."
+3.  **Set Goals:** You can ask Euonia to set goals for you, e.g., "Set a goal to exercise for 30 minutes daily, due by next Friday, with high priority."
 4.  **View Goals:** Your goals will appear in the "My Goals" sidebar.
-5.  **Manage Goals:** You can ask Eunoia to update or resolve your goals, e.g., "Mark my exercise goal as complete." or "Update my exercise goal to be 45 minutes."
+5.  **Manage Goals:** You can ask Euonia to update or resolve your goals, e.g., "Mark my exercise goal as complete." or "Update my exercise goal to be 45 minutes."
 
 ## Contributing
 
