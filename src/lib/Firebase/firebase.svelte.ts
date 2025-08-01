@@ -1,7 +1,7 @@
 import { invalidateAll } from "$app/navigation";
 import { initializeApp, type FirebaseApp } from "firebase/app";
 import { type Auth, getAuth as getFirebaseAuth, GoogleAuthProvider, onAuthStateChanged, signInWithCredential, signInWithEmailAndPassword, type User, signInWithRedirect, signInWithPopup, createUserWithEmailAndPassword, updateCurrentUser, updateProfile, sendEmailVerification, updateEmail, reauthenticateWithCredential, EmailAuthProvider, updatePassword, validatePassword, sendPasswordResetEmail, signInAnonymously } from "firebase/auth";
-import { getFirestore as getFirebaseFirestore, type Firestore, type Unsubscribe, doc, getDoc, onSnapshot } from "firebase/firestore";
+import { getFirestore as getFirebaseFirestore, type Firestore, type Unsubscribe, doc, getDoc, onSnapshot, collection, query, where, getDocs, addDoc, serverTimestamp, updateDoc, arrayUnion, orderBy } from "firebase/firestore";
 import { browser } from "$app/environment";
 import type { UserInfo as AdminUserInfo } from "firebase-admin/auth";
 import type { UserInfo as ClientUserInfo } from "firebase/auth";
@@ -424,9 +424,9 @@ export function firebaseClient() {
     }); 
   };
 
-  const signInAnonymouslyAndListen = async () => {
+  const signInWithGoogle = async () => {
     try {
-      await signInAnonymously(getAuth());
+      await signInWithPopup(getAuth(), getProvider());
     } catch (e) {
       console.error(e);
     }
@@ -458,19 +458,62 @@ export function firebaseClient() {
     return rawUser;
   }
 
+  const getChats = async (userId: string) => {
+    const db = getFirestore();
+    const chatsRef = collection(db, 'chats');
+    const q = query(chatsRef, where('userId', '==', userId), orderBy('createdAt', 'desc'));
+    const querySnapshot = await getDocs(q);
+    const chats: any[] = [];
+    querySnapshot.forEach((doc) => {
+      chats.push({ id: doc.id, ...doc.data() });
+    });
+    return chats;
+  };
+
+  const createChat = async (userId: string, name: string) => {
+    const db = getFirestore();
+    const chatsRef = collection(db, 'chats');
+    const newChatRef = await addDoc(chatsRef, {
+      userId,
+      name,
+      createdAt: serverTimestamp(),
+      interactions: [],
+    });
+    return newChatRef.id;
+  };
+
+  const updateChatName = async (chatId: string, name: string) => {
+    const db = getFirestore();
+    const chatRef = doc(db, 'chats', chatId);
+    await updateDoc(chatRef, {
+      name
+    });
+  };
+
+  const addMessage = async (chatId: string, message: any) => {
+    const db = getFirestore();
+    const chatRef = doc(db, 'chats', chatId);
+    await updateDoc(chatRef, {
+      interactions: arrayUnion(message)
+    });
+  };
+
   return {
     get user() { return user; },
     set user(updatedUser) { user = updatedUser; },
     clientInit: clientInit,
     getUser: getUser,
     signIn: signIn,
-    signInAnonymouslyAndListen,
+    signInWithGoogle,
     signOut: signOut,
     reset: reset,
     serverInit: serverInit,
     getFirestore: getFirestore,
     getApp: getApp,
     sendEmail: sendEmail,
+    getChats,
+    createChat,
+    updateChatName,
     debug: {
       getUser: getAuthUser,
       getEntry: getFirestoreEntry,

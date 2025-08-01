@@ -22,8 +22,10 @@ export async function load({ url, cookies }) {
 
     const goals = await getAllGoals(uid);
 
+    const chatId = url.searchParams.get('chatId');
+
     return {
-        sessionId: uid,
+        sessionId: chatId ?? "",
         goals
     };
 }

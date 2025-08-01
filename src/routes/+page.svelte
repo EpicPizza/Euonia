@@ -1,19 +1,108 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { tick } from 'svelte';
 	import { goto, invalidateAll } from '$app/navigation';
 	import { user } from '$lib/stores/user';
 	import { firebaseClient } from '$lib/Firebase/firebase.svelte';
-	import { onSnapshot, doc } from 'firebase/firestore';
+	import { onSnapshot, doc, type Unsubscribe } from 'firebase/firestore';
 	import OpenAI from 'openai';
 	import AuthDialog from '$lib/components/AuthDialog.svelte';
+    import { pushState } from '$app/navigation';
+	import SystemMessageModal from '$lib/components/SystemMessageModal.svelte';
+	import { systemMessage } from '$lib/stores/systemMessage';
 	export let data;
+
+	let showSystemMessageModal = false;
 
 	let userInput = '';
 	$: messages = [] as any;
 	$: goals = data.goals;
-	let loading = false;
+	    let loading: { [key: string]: boolean } = {};
 	let chatContainer: HTMLDivElement;
 	const firebase = firebaseClient();
+	let chats: any[] = [];
+	let editingChatId: string | null = null;
+	let newChatName = '';
+
+	let chatHistoryCollapsed = false;
+	let goalsCollapsed = false;
+
+	function getFormattedDate() {
+		const date = new Date();
+		const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+		const month = months[date.getMonth()];
+		const day = date.getDate();
+		const year = date.getFullYear().toString().slice(-2);
+		return `${month} ${day}, ${year} Entry`;
+	}
+
+	let ran = false;
+
+	$: {
+		if ($user && ran == false) {
+			(async () => {
+				ran = true;
+                chats = await firebase.getChats($user.uid);
+                if (chats.length === 0) {
+                    const newChatId = await firebase.createChat($user.uid, getFormattedDate());
+                    data.sessionId = newChatId;
+                    pushState(`/?chatId=${newChatId}`, {});
+                } else if (!data.sessionId) {
+                    data.sessionId = chats[0].id;
+                    pushState(`/?chatId=${chats[0].id}`, {});
+                }
+            })();
+		}
+	};
+
+	async function handleNewChat() {
+		if ($user) {
+			const newChatId = await firebase.createChat($user.uid, getFormattedDate());
+			data.sessionId = newChatId;
+			pushState(`/?chatId=${newChatId}`, {});
+		} 
+	}
+
+	function handleSelectChat(chatId: string) {
+        console.log(chatId);
+
+		data.sessionId = chatId;
+		pushState(`/?chatId=${chatId}`, {});
+	}
+
+	function handleEditChat(chatId: string) {
+		editingChatId = chatId;
+		const chat = chats.find(c => c.id === chatId);
+		if (chat) {
+			newChatName = chat.name;
+		}
+	}
+
+	function formatDeadline(isoString: string) {
+		if (!isoString) return 'No deadline';
+		try {
+			const date = new Date(isoString);
+			return date.toLocaleDateString('en-US', {
+				weekday: 'short',
+				year: 'numeric',
+				month: 'short',
+				day: 'numeric'
+			});
+		} catch (e) {
+			return isoString;
+		}
+	}
+
+	async function handleSaveChatName(chatId: string) {
+        if($user == undefined) return;
+
+		if (newChatName.trim()) {
+			await firebase.updateChatName(chatId, newChatName);
+			editingChatId = null;
+			newChatName = '';
+			chats = await firebase.getChats($user.uid);
+		}
+	}
 
 	async function scrollToBottom() {
 		await tick();
@@ -25,38 +114,37 @@
 	$: if (messages) {
 		scrollToBottom();
 	}
-
-	async function handleRefresh() {
-		await goto("/", { replaceState: true });
-		
-		await invalidateAll();
-
-	}
-
+    
 	async function handleSend() {
 		if (!userInput.trim()) return;
 
 		const currentMessage = userInput;
 		messages = [...messages, { role: 'user', text: currentMessage }];
 		userInput = '';
-		loading = true;
+		loading[data.sessionId] = true;
 
 		console.log(currentMessage);
 
 		const result = await fetch('/', {
 			method: 'POST',
-			body: JSON.stringify({ message: currentMessage}),
+			body: JSON.stringify({ message: currentMessage, chatId: data.sessionId, systemMessage: $systemMessage }),
 		});
 
         goals = (await result.json()).goals;
 
-		loading = false;
+		loading[data.sessionId] = false;
 	}
+
+    let unsubscribe: undefined | Unsubscribe;
 
 	$: if ($user && data.sessionId) {
 		const db = firebase.getFirestore();
 		const sessionRef = doc(db, 'chats', data.sessionId);
-		onSnapshot(sessionRef, (doc) => {
+
+        if(unsubscribe) unsubscribe();
+
+        console.log(data.sessionId);
+		unsubscribe = onSnapshot(sessionRef, (doc) => {
 			if (doc.exists()) {
 				const sessionData = doc.data();
 				messages = sessionData.interactions.flatMap((interaction: OpenAI.Chat.Completions.ChatCompletionMessage) => {
@@ -105,16 +193,86 @@
 
 {#if $user}
 <div class="bg-[#FEF6EB] text-[#2C3E2F] h-screen p-6 font-poppins">
-	<div class="max-w-7xl mx-auto h-full flex gap-8"> 
-		<div class="w-2/3 h-full flex flex-col">
+	<div class="max-w-full mx-auto h-full flex gap-8" style="display: flex;"> 
+		<!-- Chat History Sidebar -->
+		<aside class="h-full flex flex-col bg-white rounded-2xl shadow-md border-none transition-all duration-300 relative"
+			style="width: {chatHistoryCollapsed ? '0px' : '25%'}; min-width: {chatHistoryCollapsed ? '0px' : '200px'}; overflow: {chatHistoryCollapsed ? 'visible' : 'hidden'};"
+		>
+			<div class="flex-grow p-0 overflow-y-auto">
+				<header class="p-6 border-b border-gray-200 flex justify-between items-center">
+					<h2 class="text-lg font-semibold text-[#2C3E2F] font-eb-garamond">Chat History</h2>
+					<div class="flex  items-center gap-2">
+						<button on:click={handleNewChat} class="text-gray-500 hover:text-gray-800">
+							<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+								<path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+							</svg>
+						</button>
+						<button on:click={() => chatHistoryCollapsed = !chatHistoryCollapsed} class="text-gray-500 hover:text-gray-800">
+							<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+								<path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+							</svg>
+						</button>
+					</div>
+				</header>
+				<div class="space-y-4 p-6">
+					<!-- svelte-ignore a11y_click_events_have_key_events -->
+					<!-- svelte-ignore a11y_no_static_element_interactions -->
+					{#each chats as chat}
+						<!-- svelte-ignore a11y_click_events_have_key_events -->
+						<div class="p-4 rounded-lg cursor-pointer transition-colors"
+							 class:bg-gray-200={data.sessionId === chat.id}
+							 class:bg-[#F9F7F2]={data.sessionId !== chat.id}
+							 class:hover:bg-gray-300={data.sessionId === chat.id}
+							 class:hover:bg-gray-200={data.sessionId !== chat.id}
+							 on:click={() => handleSelectChat(chat.id)}>
+							{#if editingChatId === chat.id}
+								<input type="text" bind:value={newChatName} on:keydown={(e) => e.key === 'Enter' && handleSaveChatName(chat.id)} on:blur={() => handleSaveChatName(chat.id)} class="w-full" />
+							<!-- svelte-ignore a11y_no_static_element_interactions -->
+							{:else}
+                                <div class="flex items-center justify-between">
+                                    <h3 class="font-bold text-md text-[#2C3E2F]">{chat.name}</h3>
+                                    <div on:click|stopPropagation={() => handleEditChat(chat.id)} class="text-gray-500 hover:text-gray-800">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L15.232 5.232z" />
+                                        </svg>
+                                    </div>
+                                </div>
+							{/if}
+							
+						</div>
+					{/each}
+				</div>
+			</div>
+			{#if chatHistoryCollapsed}
+				<button on:click={() => chatHistoryCollapsed = false} class="absolute top-1/2 -right-4 transform -translate-y-1/2 bg-white p-1 rounded-full shadow-md">
+					<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+						<path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+					</svg>
+				</button>
+			{/if}
+		</aside>
+
+		<div class="h-full flex flex-col" style="flex-grow: 1;">
 		<!-- Top Bar -->
 		<header class="mb-6">
-			<div class="relative border-none rounded-2xl p-4 text-left bg-white shadow-md">
+			<div class="relative border-none rounded-2xl p-4 text-left bg-white shadow-md flex justify-between items-center">
 				<h1 class="text-md sm:text-2xl font-semibold text-[#2C3E2F] font-eb-garamond">
 					Euonia
 				</h1>
+				<div>
+					<button on:click={() => showSystemMessageModal = true} class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-full transition-colors text-sm mr-2">
+						Edit System Message
+					</button>
+					<button on:click={() => firebase.signOut()} class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-full transition-colors text-sm">
+						Sign Out
+					</button>
+				</div>
 			</div>
 		</header>
+
+		{#if showSystemMessageModal}
+			<SystemMessageModal on:close={() => showSystemMessageModal = false} />
+		{/if}
 
 		<!-- Main Content -->
 		<main class="flex-grow flex flex-col gap-6 min-h-0">
@@ -122,7 +280,7 @@
 			<div bind:this={chatContainer} class="border-none rounded-2xl flex-grow flex flex-col p-6 bg-white shadow-md overflow-y-auto">
 				{#if messages.length > 0}
 				<div class="flex-grow space-y-4">
-										{#each messages as message}
+							{#each messages as message}
 						{#if message.text.trim() !== ''}
 							{#if message.role === 'tool'}
 								<div class="flex justify-center">
@@ -159,7 +317,7 @@
 							{/if}
 						{/if}
 					{/each}
-					{#if loading}
+					{#if loading[data.sessionId]}
 						<div class="flex justify-start">
 							<div class="rounded-lg px-4 py-2 bg-[#F9F7F2] text-[#2C3E2F] font-eb-garamond">
 								Thinking...
@@ -184,9 +342,9 @@
 					disabled={!$user}
 				/>
 				<button
-				on:click={handleSend}
+					on:click={handleSend}
 					class="bg-[#2C3E2F] hover:bg-[#1a2a1c] text-white p-3 rounded-full transition-colors shadow-sm disabled:bg-gray-400 disabled:cursor-not-allowed"
-					disabled={!userInput.trim() || loading || !$user}
+					disabled={!userInput.trim() || loading[data.sessionId] || !$user}
 					aria-label="Send message"
 				>
 					<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -198,19 +356,26 @@
 		</div>
 
 		<!-- Goals Sidebar -->
-		<aside class="w-1/3 h-full flex flex-col bg-white rounded-2xl shadow-md border-none">
-			<header class="p-6 border-b border-gray-200">
-				<h2 class="text-lg font-semibold text-[#2C3E2F] font-eb-garamond">My Goals</h2>
-			</header>
-			<div class="flex-grow p-6 overflow-y-auto">
-				<div class="space-y-6">
+		<aside class="h-full flex flex-col bg-white rounded-2xl shadow-md border-none transition-all duration-300 relative"
+			style="width: {goalsCollapsed ? '0px' : '25%'}; min-width: {goalsCollapsed ? '0px' : '200px'}; overflow: {goalsCollapsed ? 'visible' : 'hidden'};"
+		>
+			<div class="flex-grow p-0 overflow-y-auto">
+				<header class="p-6 border-b border-gray-200 flex justify-between items-center">
+					<h2 class="text-lg font-semibold text-[#2C3E2F] font-eb-garamond">My Goals</h2>
+					<button on:click={() => goalsCollapsed = !goalsCollapsed} class="text-gray-500 hover:text-gray-800">
+						<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+							<path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+					</svg>
+					</button>
+				</header>
+				<div class="space-y-6 p-6">
 					{#each goals as goal}
 						<div class="p-6 rounded-lg bg-[#F9F7F2]">
 							<h3 class="font-bold text-md text-[#2C3E2F]">{goal.name}</h3>
 							<p class="text-sm text-[#2C3E2F] mt-1">{goal.description}</p>
 							<div class="mt-2 text-xs flex justify-between">
 								<span class="font-semibold text-[#2C3E2F]">Priority: {goal.priority}</span>
-								<span class="text-gray-500">Deadline: {goal.deadline}</span>
+								<span class="text-gray-500">Deadline: {formatDeadline(goal.deadline)}</span>
 							</div>
 						</div>
 					{:else}
@@ -218,6 +383,13 @@
 					{/each}
 				</div>
 			</div>
+			{#if goalsCollapsed}
+				<button on:click={() => goalsCollapsed = false} class="absolute top-1/2 -left-4 transform -translate-y-1/2 bg-white p-1 rounded-full shadow-md">
+					<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+						<path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+					</svg>
+				</button>
+			{/if}
 		</aside>
 	</div>
 </div>
@@ -256,8 +428,8 @@
         <h2>with Euonia</h2>
     </div>
     
-    <div class="absolute bottom-20 left-1/2 -translate-x-1/2 z-10">
-        <AuthDialog on:signIn={() => firebase.signInAnonymouslyAndListen()} />
+    <div class="absolute bottom-20 w-fit  left-1/2 sm:-translate-x-1/2 z-10 auth-container">
+        <AuthDialog on:signIn={() => firebase.signInWithGoogle()} />
     </div>
 
     <div class="card bottom-left">
@@ -584,40 +756,66 @@
 }
 
 @media (max-width: 768px) {
-    body {
-        padding: 10px;
+	.landing-page-container {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center; /* Center vertically */
+		overflow-y: auto;
+		height: 100dvh; /* Use dynamic viewport height */
+		padding: 40px 20px;
+		gap: 20px;
+	}
+
+	.card {
+		position: relative;
+		width: 90%;
+		max-width: 300px;
+		margin: 0;
+		top: auto;
+		left: auto;
+		right: auto;
+		bottom: auto;
+		max-height: 150px; /* Limit the height of the card */
+	}
+
+	.card-image {
+		width: 100%;
+		height: 100%;
+		object-fit: cover; /* Ensure the image covers the card without distortion */
+	}
+
+	.main-title {
+		position: relative;
+		transform: none;
+		left: auto;
+		top: auto;
+		margin: 0;
+		order: 1;
+	}
+
+	.auth-container {
+		position: relative;
+		transform: none;
+		left: auto;
+		bottom: auto;
+		margin: 20px 0 0 0;
+		order: 2;
         display: flex;
-        flex-direction: column;
-        align-items: center;
-        overflow-y: auto;
-        height: auto;
+        justify-content: center;
+	}
+
+	.card.top-left {
+		order: 0;
+	}
+	.card.top-right {
+		order: 3;
+	}
+    .card.middle-left {
+        order: 4;
     }
-    
-    .card {
-        position: relative;
-        width: 90%;
-        max-width: 300px;
-        margin: 10px 0;
-        top: auto;
-        left: auto;
-        right: auto;
-        bottom: auto;
-    }
-    
-    .main-title {
-        position: relative;
-        transform: none;
-        left: auto;
-        top: auto;
-        margin: 30px 0;
-    }
-    
-    .name-input {
-        position: relative;
-        transform: none;
-        left: auto;
-        bottom: auto;
-        margin: 30px 0;
+    .card.middle-right {
+        order: 5;
     }
 }
 
