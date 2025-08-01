@@ -43,7 +43,7 @@ export function firebaseClient() {
     if (app == undefined) {
       const firebaseConfig = {
         apiKey: "AIzaSyCvfIWQaG1OrSzRewV1nmu1aAnaKZG1TpQ",
-        authDomain: "humanehackathon.firebaseapp.com",
+        authDomain: "euonia.alexest.net",
         projectId: "humanehackathon",
         storageBucket: "humanehackathon.firebasestorage.app",
         messagingSenderId: "5363443441",
