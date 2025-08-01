@@ -419,14 +419,14 @@ export function firebaseClient() {
 
     window.history.replaceState({}, "", url.toString());
 
-    signInWithPopup(getAuth(), getProvider()).catch((error) => {
+    signInWithRedirect(getAuth(), getProvider()).catch((error) => {
       console.log(error);
     }); 
   };
 
   const signInWithGoogle = async () => {
     try {
-      await signInWithPopup(getAuth(), getProvider());
+      await signInWithRedirect(getAuth(), getProvider());
     } catch (e) {
       console.error(e);
     }

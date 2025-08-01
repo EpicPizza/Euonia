@@ -194,13 +194,13 @@
 {#if $user}
 <div class="bg-[#FEF6EB] text-[#2C3E2F] h-screen p-6 font-poppins">
 	<div class="max-w-full mx-auto h-full flex gap-8" style="display: flex;"> 
-		<!-- Chat History Sidebar -->
+		<!-- Journal Entries Sidebar -->
 		<aside class="h-full flex flex-col bg-white rounded-2xl shadow-md border-none transition-all duration-300 relative"
 			style="width: {chatHistoryCollapsed ? '0px' : '25%'}; min-width: {chatHistoryCollapsed ? '0px' : '200px'}; overflow: {chatHistoryCollapsed ? 'visible' : 'hidden'};"
 		>
 			<div class="flex-grow p-0 overflow-y-auto">
 				<header class="p-6 border-b border-gray-200 flex justify-between items-center">
-					<h2 class="text-lg font-semibold text-[#2C3E2F] font-eb-garamond">Chat History</h2>
+					<h2 class="text-lg font-semibold text-[#2C3E2F] font-eb-garamond">Journal Entries</h2>
 					<div class="flex  items-center gap-2">
 						<button on:click={handleNewChat} class="text-gray-500 hover:text-gray-800">
 							<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
