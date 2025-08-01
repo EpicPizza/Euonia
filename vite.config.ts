@@ -6,7 +6,7 @@ export default defineConfig({
 	plugins: [tailwindcss(), sveltekit()],
 	server: {
 		proxy: {
-			'/__': "https://humanehackathon.firebaseapp.com/__"
+			'/__': "https://humanehackathon.firebaseapp.com"
 		}
 	}
 });
