@@ -43,7 +43,7 @@ export function firebaseClient() {
     if (app == undefined) {
       const firebaseConfig = {
         apiKey: "AIzaSyCvfIWQaG1OrSzRewV1nmu1aAnaKZG1TpQ",
-        authDomain: "euonia.alexest.net",
+        authDomain: "humanehackathon.firebaseapp.com",
         projectId: "humanehackathon",
         storageBucket: "humanehackathon.firebasestorage.app",
         messagingSenderId: "5363443441",
@@ -419,14 +419,14 @@ export function firebaseClient() {
 
     window.history.replaceState({}, "", url.toString());
 
-    signInWithRedirect(getAuth(), getProvider()).catch((error) => {
+    signInWithPopup(getAuth(), getProvider()).catch((error) => {
       console.log(error);
     }); 
   };
 
   const signInWithGoogle = async () => {
     try {
-      await signInWithRedirect(getAuth(), getProvider());
+      await signInWithPopup(getAuth(), getProvider());
     } catch (e) {
       console.error(e);
     }
