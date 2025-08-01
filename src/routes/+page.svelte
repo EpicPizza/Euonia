@@ -192,7 +192,7 @@
 </script>
 
 {#if $user}
-<div class="bg-[#FEF6EB] text-[#2C3E2F] h-screen p-6 font-poppins">
+<div class="bg-[#F8F3EB] text-[#2C3E2F] h-screen p-6 font-poppins">
 	<div class="max-w-full mx-auto h-full flex gap-8" style="display: flex;"> 
 		<!-- Journal Entries Sidebar -->
 		<aside class="h-full flex flex-col bg-white rounded-2xl shadow-md border-none transition-all duration-300 relative"
@@ -394,7 +394,7 @@
 	</div>
 </div>
 {:else}
-<div class="landing-page-container">
+<div class="landing-page-container" style="background-color: #F8F3EB; width: 100dvw !important;">
     <div class="card top-left">
         <span class="label">Vent</span>
         <div class="card-content">
@@ -755,8 +755,7 @@
     }
 }
 
-@media (max-width: 768px) {
-	.landing-page-container {
+.landing-page-container {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
@@ -766,6 +765,8 @@
 		padding: 40px 20px;
 		gap: 20px;
 	}
+
+@media (max-width: 768px) {
 
 	.card {
 		position: relative;
