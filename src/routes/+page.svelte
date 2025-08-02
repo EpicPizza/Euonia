@@ -258,7 +258,7 @@
 		<header class="mb-6">
 			<div class="relative border-none rounded-2xl p-4 text-left bg-white shadow-md flex justify-between items-center">
 				<h1 class="text-md sm:text-2xl font-semibold text-[#2C3E2F] font-eb-garamond">
-					Euonia
+					Eunoia
 				</h1>
 				<div>
 					<button on:click={() => showSystemMessageModal = true} class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-full transition-colors text-sm mr-2">
@@ -426,7 +426,7 @@
 
     <div class="main-title">
         <h1>Grow</h1>
-        <h2>with Euonia</h2>
+        <h2>with Eunoia</h2>
     </div>
     
     <div class="absolute bottom-20 w-fit  left-1/2 sm:-translate-x-1/2 z-10 auth-container">
