@@ -60,6 +60,7 @@
 			const newChatId = await firebase.createChat($user.uid, getFormattedDate());
 			data.sessionId = newChatId;
 			pushState(`/?chatId=${newChatId}`, {});
+			chats = await firebase.getChats($user.uid);
 		} 
 	}
 
@@ -127,7 +128,7 @@
 
 		const result = await fetch('/', {
 			method: 'POST',
-			body: JSON.stringify({ message: currentMessage, chatId: data.sessionId, systemMessage: $systemMessage }),
+			body: JSON.stringify({ message: currentMessage, chatId: data.sessionId, systemMessage: $systemMessage.replace("{{date}}", new Date().toLocaleDateString()) }),
 		});
 
         goals = (await result.json()).goals;
@@ -621,6 +622,8 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    position: relative;
+    z-index: 0;
 }
 
 .placeholder {
