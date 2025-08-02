@@ -447,9 +447,45 @@
     </div>
 
     <div class="card left-extra">
-        <span class="label">Advice</span>
+        <span class="label">Advise</span>
         <div class="card-content">
-            <img src="/advise.png" alt="Advice" class="card-image">
+            <img src="/advise.png" alt="Advise" class="card-image">
+        </div>
+    </div>
+    <div class="card right-extra">
+        <span class="label">Imagine</span>
+        <div class="card-content">
+            <img src="/Imagine.png" alt="Imagine" class="card-image">
+        </div>
+    </div>
+    <div class="card top-center">
+        <span class="label">Learn</span>
+        <div class="card-content">
+            <img src="/Learn.png" alt="Learn" class="card-image">
+        </div>
+    </div>
+    <div class="card bottom-center">
+        <span class="label">Manifest</span>
+        <div class="card-content">
+            <img src="/Manifest.png" alt="Manifest" class="card-image">
+        </div>
+    </div>
+    <div class="card middle-top-left">
+        <span class="label">Pivot</span>
+        <div class="card-content">
+            <img src="/Piviot.png" alt="Pivot" class="card-image">
+        </div>
+    </div>
+    <div class="card middle-top-right">
+        <span class="label">Reflect</span>
+        <div class="card-content">
+            <img src="/Reflect.png" alt="Reflect" class="card-image">
+        </div>
+    </div>
+    <div class="card middle-bottom-left">
+        <span class="label">Think</span>
+        <div class="card-content">
+            <img src="/Think.png" alt="Think" class="card-image">
         </div>
     </div>
 </div>
@@ -498,11 +534,13 @@
     display: flex;
     flex-direction: column;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    z-index: 1;
 }
 
 .card:hover {
     transform: translateY(-5px);
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    z-index: 11;
 }
 
 /* Card positioning - spread randomly around the page without overlapping */
@@ -544,6 +582,38 @@
 .card.right-extra {
     right: 250px;
     bottom: 35%;
+}
+
+.card.top-center {
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.card.bottom-center {
+    bottom: 220px;
+    left: 85%;
+    transform: translateX(-50%);
+}
+
+.card.middle-top-left {
+    top: 25%;
+    left: 20%;
+}
+
+.card.middle-top-right {
+    top: 25%;
+    right: 20%;
+}
+
+.card.middle-bottom-left {
+    bottom: 25%;
+    left: 20%;
+}
+
+.card.middle-bottom-right {
+    bottom: 25%;
+    right: 20%;
 }
 
 .card-content {
