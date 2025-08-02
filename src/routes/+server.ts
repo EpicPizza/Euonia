@@ -225,7 +225,7 @@ import type { MessageBatch, MessageCreateParamsBase } from '@anthropic-ai/sdk/re
         content: (functionName === "get_goals" && Array.isArray(result) && result.length === 0)
           ? "No goals found for the specified period."
           : (functionName === "set_goal" && result && typeof result === 'object' && 'name' in result)
-          ? `Goal '${result.name}' has been successfully set.`
+          ? `Goal '${result.name}' with ID '${result.id}' has been successfully set.`
           : (functionName === "resolve_goal" && result && typeof result === 'object' && 'success' in result)
           ? (result.success && 'id' in result ? `Goal with ID '${result.id}' has been successfully resolved.` : `Failed to resolve goal: ${'message' in result ? result.message : 'Unknown error.'}`)
           : (functionName === "update_goal" && result && typeof result === 'object' && 'success' in result)
@@ -297,7 +297,7 @@ async function getGoals({ days, uid }: { days: number, uid: string }): Promise<{
     }
 
     const goals = await db.collection("goals").where("uid", "==", uid).where("day", ">=", Math.floor((new Date().getTime() - new Date(2023, 5, 24).getTime()) / (1000 * 60 * 60 * 24)) - days).where("day", "<", Math.floor((new Date().getTime() - new Date(2023, 5, 24).getTime()) / (1000 * 60 * 60 * 24)) + days).get();
-    return goals.docs.map(doc => doc.data() as any);
+    return goals.docs.map(doc => ({ id: doc.id, ...doc.data() } as any));
 } 
 
 async function getAllGoals(uid: string): Promise<{ name: string, priority: string, description: string, id: string, deadline: string }[]> {

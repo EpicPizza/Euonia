@@ -43,11 +43,7 @@
 			(async () => {
 				ran = true;
                 chats = await firebase.getChats($user.uid);
-                if (chats.length === 0) {
-                    const newChatId = await firebase.createChat($user.uid, getFormattedDate());
-                    data.sessionId = newChatId;
-                    pushState(`/?chatId=${newChatId}`, {});
-                } else if (!data.sessionId) {
+                if (!data.sessionId) {
                     data.sessionId = chats[0].id;
                     pushState(`/?chatId=${chats[0].id}`, {});
                 }
@@ -299,7 +295,7 @@
 												<p>No goals found for the specified period.</p>
 											{/if}
 										{:else}
-                                            {@html message.text.replaceAll('\n', '<br>').replaceAll('*', '')}
+                                            {@html message.text.replaceAll('\n', '<br>').replaceAll('*', '').replace(/ with ID '[a-zA-Z0-9]+'/, '').replace(/, id: '[a-zA-Z0-9]+'}/g, '}')}
 										{/if}
 									</div>
 								</div>
@@ -529,8 +525,8 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); /* Lighter shadow */
     overflow: hidden;
     position: absolute;
-    width: 180px;
-    height: 150px;
+    width: 220px;
+    height: 180px;
     border: none; /* Removed border to match reference image */
     display: flex;
     flex-direction: column;
@@ -546,33 +542,33 @@
 
 /* Card positioning - spread randomly around the page without overlapping */
 .card.top-left {
-    top: 50px;
-    left: 50px;
+    top: 20px;
+    left: 20px;
 }
 
 .card.top-right {
-    top: 50px;
-    right: 50px;
+    top: 20px;
+    right: 20px;
 }
 
 .card.middle-left {
-    top: 45%; 
-    left: 60px;
+    top: 50%; 
+    left: 20px;
 }
 
 .card.middle-right {
-    top: 30%;
-    right: 80px;
+    top: 50%;
+    right: 20px;
 }
 
 .card.bottom-left {
-    bottom: 150px;
-    left: 150px;
+    bottom: 20px;
+    left: 20px;
 }
 
 .card.bottom-right {
-    bottom: 120px;
-    right: 180px;
+    bottom: 20px;
+    right: 20px;
 }
 
 .card.left-extra {
@@ -593,13 +589,13 @@
 
 .card.bottom-center {
     bottom: 220px;
-    left: 85%;
+    left: 90%;
     transform: translateX(-50%);
 }
 
 .card.middle-top-left {
     top: 25%;
-    left: 20%;
+    left: 25%;
 }
 
 .card.middle-top-right {
