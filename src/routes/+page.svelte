@@ -172,12 +172,12 @@
 						if (assistantContent) { // Also include any content from the assistant message
 							newMessages.push({
 								role: interaction.role,
-								text: assistantContent
+								text: assistantContent.replace(/<think>[\s\S]*?<\/think>/g, '').trim()
 							});
 						}
 					} else {
 						// Regular user or assistant message with content
-						const messageContent = typeof interaction.content === 'string' ? interaction.content.trim() : '';
+						const messageContent = typeof interaction.content === 'string' ? interaction.content.trim().replace(/<think>[\s\S]*?<\/think>/g, '').trim() : '';
 						if (messageContent) {
 							newMessages.push({
 								role: interaction.role,
