@@ -17,7 +17,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import type { Message, Tool } from '@anthropic-ai/sdk/resources';
 import type { MessageBatch, MessageCreateParamsBase } from '@anthropic-ai/sdk/resources/messages.js';
   
- async function main(input: string, uid: string, chatId: string, systemMessageContent: string): Promise<{ responseText: string, goals: any[] }> {
+ async function main(input: string, uid: string, chatId: string, systemMessageContent: string, model: string): Promise<{ responseText: string, goals: any[] }> {
   const db = firebaseAdmin.getFirestore();
   const ref = db.collection('chats').doc(chatId);
   const doc = await ref.get();
@@ -185,7 +185,7 @@ import type { MessageBatch, MessageCreateParamsBase } from '@anthropic-ai/sdk/re
   ] satisfies OpenAI.Chat.Completions.ChatCompletionMessageParam[]) as OpenAI.Chat.Completions.ChatCompletionMessageParam[];
 
   let completion = await openai.chat.completions.create({
-    model: "moonshotai/kimi-k2-instruct",
+    model: model,
     messages: [ systemMessage, ... messages ],
     temperature: 0.6,
     top_p: 0.9,
@@ -238,7 +238,7 @@ import type { MessageBatch, MessageCreateParamsBase } from '@anthropic-ai/sdk/re
     }
 
     completion = await openai.chat.completions.create({
-      model: "moonshotai/kimi-k2-instruct",
+      model: model,
       messages: [ systemMessage, ... messages ],
       temperature: 0.6,
       top_p: 0.9,
@@ -355,7 +355,7 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
     const uid = user.uid;
     
     const body = await request.json();
-    const { message, chatId, systemMessage } = body;
+    const { message, chatId, systemMessage, model } = body;
 
     if (!chatId) {
         return json({ error: 'No chatId provided' }, { status: 400 });
@@ -363,5 +363,5 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 
     console.log(message);
 
-    return json(await main(message, uid, chatId, systemMessage));
+    return json(await main(message, uid, chatId, systemMessage, model));
 };

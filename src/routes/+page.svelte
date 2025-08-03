@@ -10,6 +10,10 @@
     import { pushState } from '$app/navigation';
 	import SystemMessageModal from '$lib/components/SystemMessageModal.svelte';
 	import { systemMessage } from '$lib/stores/systemMessage';
+	import { selectedModel } from '$lib/stores/model';
+	import ModelDialog from '$lib/components/ModelDialog.svelte';
+
+	let showModelDialog = false;
 	export let data;
 
 	let showSystemMessageModal = false;
@@ -122,9 +126,9 @@
 
 		console.log(currentMessage);
 
-		const result = await fetch('/', {
+				const result = await fetch('/', {
 			method: 'POST',
-			body: JSON.stringify({ message: currentMessage, chatId: data.sessionId, systemMessage: $systemMessage.replace("{{date}}", new Date().toLocaleDateString()) }),
+			body: JSON.stringify({ message: currentMessage, chatId: data.sessionId, systemMessage: $systemMessage, model: $selectedModel }),
 		});
 
         goals = (await result.json()).goals;
@@ -257,6 +261,9 @@
 					Eunoia
 				</h1>
 				<div>
+					<button on:click={() => showModelDialog = true} class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-full transition-colors text-sm mr-2">
+						Edit Model
+					</button>
 					<button on:click={() => showSystemMessageModal = true} class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-full transition-colors text-sm mr-2">
 						Edit System Message
 					</button>
@@ -266,6 +273,10 @@
 				</div>
 			</div>
 		</header>
+
+		{#if showModelDialog}
+			<ModelDialog on:close={() => showModelDialog = false} />
+		{/if}
 
 		{#if showSystemMessageModal}
 			<SystemMessageModal on:close={() => showSystemMessageModal = false} />
