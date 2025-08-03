@@ -588,8 +588,8 @@
 }
 
 .card.bottom-center {
-    bottom: 220px;
-    left: 90%;
+    bottom: 50px;
+    left: 75%;
     transform: translateX(-50%);
 }
 
@@ -610,7 +610,7 @@
 
 .card.middle-bottom-right {
     bottom: 25%;
-    right: 20%;
+    right: 25%;
 }
 
 .card-content {
@@ -790,8 +790,8 @@
     }
     
     .card.bottom-right {
-        bottom: 80px;
-        right: 80px;
+        bottom: 100px;
+        right: 120px;
     }
     
     .card.left-extra {
