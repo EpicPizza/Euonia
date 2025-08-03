@@ -410,12 +410,6 @@
         </div>
     </div>
     
-    <div class="card top-right">
-        <span class="label">Talk</span>
-        <div class="card-content">
-            <img src="/talk.png" alt="Talk" class="card-image">
-        </div>
-    </div>
 
     <div class="card middle-left">
         <span class="label">Plan</span>
@@ -446,13 +440,6 @@
             <img src="/ideate.png" alt="Ideate" class="card-image">
         </div>
     </div>
-    
-    <div class="card bottom-right">
-        <span class="label">Heal</span>
-        <div class="card-content">
-            <img src="/heal.png" alt="Heal" class="card-image">
-        </div>
-    </div>
 
     <div class="card left-extra">
         <span class="label">Advise</span>
@@ -473,9 +460,9 @@
         </div>
     </div>
     <div class="card bottom-center">
-        <span class="label">Manifest</span>
+        <span class="label">Heal</span>
         <div class="card-content">
-            <img src="/Manifest.png" alt="Manifest" class="card-image">
+            <img src="/heal.png" alt="Heal" class="card-image">
         </div>
     </div>
     <div class="card middle-top-left">
@@ -488,12 +475,6 @@
         <span class="label">Reflect</span>
         <div class="card-content">
             <img src="/Reflect.png" alt="Reflect" class="card-image">
-        </div>
-    </div>
-    <div class="card middle-bottom-left">
-        <span class="label">Think</span>
-        <div class="card-content">
-            <img src="/Think.png" alt="Think" class="card-image">
         </div>
     </div>
 </div>
@@ -563,18 +544,18 @@
 }
 
 .card.middle-left {
-    top: 50%; 
-    left: 20px;
+    top: 40%; 
+    left: 40px;
 }
 
 .card.middle-right {
     top: 50%;
-    right: 20px;
+    right: 15%;
 }
 
 .card.bottom-left {
     bottom: 20px;
-    left: 20px;
+    left: 10%;
 }
 
 .card.bottom-right {
@@ -588,8 +569,8 @@
 }
 
 .card.right-extra {
-    right: 250px;
-    bottom: 35%;
+    right: 20%;
+    top: 30%;
 }
 
 .card.top-center {
@@ -599,19 +580,19 @@
 }
 
 .card.bottom-center {
-    bottom: 50px;
+    bottom: 20px;
     left: 75%;
     transform: translateX(-50%);
 }
 
 .card.middle-top-left {
-    top: 25%;
+    top: 45%;
     left: 25%;
 }
 
 .card.middle-top-right {
-    top: 25%;
-    right: 20%;
+    top: 5%;
+    right: 8%;
 }
 
 .card.middle-bottom-left {
@@ -792,7 +773,7 @@
     
     .card.middle-right {
         top: 38%;
-        right: 100px;
+        right: 20%;
     }
     
     .card.bottom-left {
@@ -811,8 +792,8 @@
     }
     
     .card.right-extra {
-        right: 150px;
-        bottom: 28%;
+        right: 24%;
+        top: 20%;
     }
 }
 
