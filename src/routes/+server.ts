@@ -185,7 +185,7 @@ import type { MessageBatch, MessageCreateParamsBase } from '@anthropic-ai/sdk/re
   ] satisfies OpenAI.Chat.Completions.ChatCompletionMessageParam[]) as OpenAI.Chat.Completions.ChatCompletionMessageParam[];
 
   let completion = await openai.chat.completions.create({
-    model: model,
+    model: "mistralai/mistral-nemotron",
     messages: [ systemMessage, ... messages ],
     temperature: 0.6,
     top_p: 0.9,
@@ -238,7 +238,7 @@ import type { MessageBatch, MessageCreateParamsBase } from '@anthropic-ai/sdk/re
     }
 
     completion = await openai.chat.completions.create({
-      model: model,
+      model: "mistralai/mistral-nemotron",
       messages: [ systemMessage, ... messages ],
       temperature: 0.6,
       top_p: 0.9,

@@ -261,12 +261,6 @@
 					Eunoia
 				</h1>
 				<div>
-					<button on:click={() => showModelDialog = true} class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-full transition-colors text-sm mr-2">
-						Edit Model
-					</button>
-					<button on:click={() => showSystemMessageModal = true} class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-full transition-colors text-sm mr-2">
-						Edit System Message
-					</button>
 					<button on:click={() => firebase.signOut()} class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-full transition-colors text-sm">
 						Sign Out
 					</button>
