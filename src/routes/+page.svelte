@@ -128,7 +128,7 @@
 
 				const result = await fetch('/', {
 			method: 'POST',
-			body: JSON.stringify({ message: currentMessage, chatId: data.sessionId, systemMessage: $systemMessage, model: $selectedModel }),
+			body: JSON.stringify({ message: currentMessage, chatId: data.sessionId, systemMessage: $systemMessage.replace("{{date}}", new Date().toLocaleDateString()), model: $selectedModel }),
 		});
 
         goals = (await result.json()).goals;
