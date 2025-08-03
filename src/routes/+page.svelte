@@ -549,8 +549,8 @@
 }
 
 .card.middle-right {
-    top: 50%;
-    right: 15%;
+    top: 52%;
+    right: 10%;
 }
 
 .card.bottom-left {
@@ -772,8 +772,8 @@
     }
     
     .card.middle-right {
-        top: 38%;
-        right: 20%;
+        top: 42%;
+        right: 18%;
     }
     
     .card.bottom-left {
